@@ -6,15 +6,21 @@
 //
 
 import UIKit
+import Combine
 
 final class LoginViewController: UIViewController {
+    var mainScrollView = UIScrollView()
+    
+    var contentView = UIView()
+    
+    var cancellableBag = Set<AnyCancellable>()
     
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "profile")
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        imageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        imageView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        imageView.widthAnchor.constraint(equalToConstant: 200).isActive = true
         return imageView
     }()
     
@@ -85,9 +91,11 @@ final class LoginViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configScroll()
         configUI()
         configConstraints()
         configTargets()
+        configKeyboardSubscription(mainScrollView: mainScrollView)
     }
     private func configUI() {
         title = "Login interface"
@@ -95,14 +103,16 @@ final class LoginViewController: UIViewController {
     }
     
     private func configConstraints() {
-        view.addSubview(profileImageView)
-        profileImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50).isActive = true
-        profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        contentView.addSubview(profileImageView)
+        profileImageView.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 50).isActive = true
+        profileImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
         
-        view.addSubview(containerStackView)
+        contentView.addSubview(containerStackView)
         containerStackView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 50).isActive = true
-        containerStackView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
-        containerStackView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
+        containerStackView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 20).isActive = true
+        containerStackView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -20).isActive = true
+        containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+
         
         [emailTextField, passwordTextField, loginButton, forgotPasswordButton, signUpButton].forEach {
             containerStackView.addArrangedSubview($0)
@@ -121,4 +131,8 @@ final class LoginViewController: UIViewController {
     
     
 }
+
+extension LoginViewController: ViewScrollable {}
+
+extension LoginViewController: KeyboardDisplayable {}
 
